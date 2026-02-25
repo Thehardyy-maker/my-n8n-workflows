@@ -1,0 +1,617 @@
+{
+  "name": "Order flow for Pending Customers",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        -496
+      ],
+      "id": "591b2f8f-f7a6-47a5-bae8-c50a54d628cf",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d531e702-545f-4095-9f2d-737e66b16404",
+                    "leftValue": "={{ $json.order_priority }}",
+                    "rightValue": "High",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Priority order"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.order_status }}",
+                    "rightValue": "Pending",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "93ee0981-db6c-4e8d-8af3-b3f52275a927"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Pending Orders"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "06c725e2-4153-427e-b1e1-1a716fbfe9dc",
+                    "leftValue": "={{ $json.order_status }}",
+                    "rightValue": "Delivered",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Successfully Delivered"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "8a11b883-edb1-4ad0-88f3-4111be67f971",
+                    "leftValue": "={{ $json.order_status }}",
+                    "rightValue": "Cancelled",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cancelled Order"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1746b2e3-254b-474d-980e-0a32657c1611",
+                    "leftValue": "={{ $json.order_status }}",
+                    "rightValue": "Processing",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Order been Processed"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        592,
+        -544
+      ],
+      "id": "da52bf7c-8508-4edf-9b30-1d7d309d8f54",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "=thehardyy",
+          "mode": "name"
+        },
+        "text": "Hey there team, the following order are pending/high priority, please look into it. Thank yoyu",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1488,
+        -496
+      ],
+      "id": "8d8acd15-23f5-4895-9c81-58fab3c1f165",
+      "name": "Send a message1",
+      "webhookId": "6403fbaa-9a9d-4913-bc6f-c99b54b9cf13",
+      "credentials": {
+        "slackApi": {
+          "id": "RSHwqU3KrRNSbQAf",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1y01JBUbG6KiRvNZDWyC7uDODtqFETsAtYTQNVNK_h1I",
+          "mode": "list",
+          "cachedResultName": "Copy of Mock_Orders_Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y01JBUbG6KiRvNZDWyC7uDODtqFETsAtYTQNVNK_h1I/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1046332817,
+          "mode": "list",
+          "cachedResultName": "Mock_Order_Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y01JBUbG6KiRvNZDWyC7uDODtqFETsAtYTQNVNK_h1I/edit#gid=1046332817"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -80,
+        -592
+      ],
+      "id": "c464cde2-6020-49ef-908f-17430fdc633d",
+      "name": "Get Orders Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CG3rsURMv6JdhRiH",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1LCNkHR0tcWjcp2xT6ZHxruHsgAh8L8kY81Niz_QRKJs",
+          "mode": "list",
+          "cachedResultName": "Copy of Mock_Order_Details_Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LCNkHR0tcWjcp2xT6ZHxruHsgAh8L8kY81Niz_QRKJs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 577413004,
+          "mode": "list",
+          "cachedResultName": "Mock_Order_Details_Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LCNkHR0tcWjcp2xT6ZHxruHsgAh8L8kY81Niz_QRKJs/edit#gid=577413004"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -80,
+        -400
+      ],
+      "id": "bfb8b1a6-5631-4893-a51b-c3a019824f55",
+      "name": "Get Orders Details Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CG3rsURMv6JdhRiH",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "order_id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        144,
+        -496
+      ],
+      "id": "e31cba6f-6c2e-4325-866b-635ef65b61ee",
+      "name": "Merge Order data with Details "
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3f6874c5-e453-499f-a02d-b9b9ff8b1642",
+              "name": "full_name",
+              "value": "={{ $json.first_name }} {{ $json.last_name }}",
+              "type": "string"
+            },
+            {
+              "id": "f8c4a978-66a9-428e-ac3c-b57170a6f297",
+              "name": "=order_priority",
+              "value": "={{ ($json.order_status == 'Processing' && $now.diffTo($json.order_date,'days') > 1) ? 'High' : 'Standard' }}",
+              "type": "string"
+            },
+            {
+              "id": "bc12d344-5d3e-4297-bf1e-d6b97da2fb2d",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": "={{ true }}",
+        "include": "except",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        -496
+      ],
+      "id": "9df9d7f1-6027-4869-b47c-890eefd7f6b0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sendTo": "shreyad037@gmail.com",
+        "subject": "=Pending Orders from today {{ $now }}",
+        "emailType": "text",
+        "message": "=Connect with the customer to get the pending details for the following orders:  \n{{ $json.pending_order_ids }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        -592
+      ],
+      "id": "5ef92191-aac3-4ba9-9fd3-69f57015498c",
+      "name": "Notify Service Team",
+      "webhookId": "ee5c2970-a8ee-4e50-a22d-0118a7d6b30a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "axG2X7yxOLhgo9kH",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "order_id",
+              "renameField": true,
+              "outputFieldName": "pending_order_ids"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        -592
+      ],
+      "id": "cfd894f3-1505-4229-81dc-0497af8d28df",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "order_id",
+              "renameField": true,
+              "outputFieldName": "priority_order_ids"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        -400
+      ],
+      "id": "13f4bec7-63f6-4c7a-aaac-90e5d8e8b62c",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "sendTo": "shreyad037@gmail.com",
+        "subject": "=Order {{ $json.priority_order_ids }} is in priority state",
+        "emailType": "text",
+        "message": "Connect with the customer to get the pending details",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        -400
+      ],
+      "id": "40e48915-5e22-432b-b102-e60a0cf2a6d4",
+      "name": "Email to customers",
+      "webhookId": "ee5c2970-a8ee-4e50-a22d-0118a7d6b30a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "axG2X7yxOLhgo9kH",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "order_id",
+        "options": {
+          "removeOtherFields": true
+        }
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        816,
+        -592
+      ],
+      "id": "6ce8e2a7-483f-426d-879d-2032b04f72b9",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "order_id",
+        "options": {
+          "removeOtherFields": true
+        }
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        816,
+        -400
+      ],
+      "id": "8ff0a387-199b-412e-b44d-92226cde5cba",
+      "name": "Remove Duplicates1"
+    },
+    {
+      "parameters": {
+        "content": "Workflow for Processing and Priority Ordered Items ."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -704
+      ],
+      "id": "730f3a2a-0ea8-482f-b71e-b0d220bf37c3",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get Orders Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Orders Details Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [],
+        [],
+        [
+          {
+            "node": "Remove Duplicates1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Orders Data": {
+      "main": [
+        [
+          {
+            "node": "Merge Order data with Details ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Orders Details Data": {
+      "main": [
+        [
+          {
+            "node": "Merge Order data with Details ",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Order data with Details ": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Service Team": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        []
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Notify Service Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Email to customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email to customers": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "a361a170-45a4-4093-b92b-e45b7c4d98c5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "af2df7fe43eddeb470719f6f1c01f6e64057d61480721d0772b20d3a58c7dc4f"
+  },
+  "id": "XNi5pn16YQ3F9eg6",
+  "tags": [
+    {
+      "updatedAt": "2026-01-24T15:41:58.766Z",
+      "createdAt": "2026-01-24T15:41:58.766Z",
+      "id": "qM3BIzkZPqQcVBV2",
+      "name": "Testing"
+    }
+  ]
+}
