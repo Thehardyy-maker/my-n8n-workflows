@@ -1,0 +1,395 @@
+{
+  "name": "Customer feedback survey",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        128
+      ],
+      "id": "01594523-7407-49c4-aca1-786e9b1bc26f",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1UfL1oX_GtriyOPSYFUU4aXwkZd97xbaZXFShagdTZxU",
+          "mode": "list",
+          "cachedResultName": "Id cust data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UfL1oX_GtriyOPSYFUU4aXwkZd97xbaZXFShagdTZxU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1768153630,
+          "mode": "list",
+          "cachedResultName": "Customer Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UfL1oX_GtriyOPSYFUU4aXwkZd97xbaZXFShagdTZxU/edit#gid=1768153630"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -192,
+        144
+      ],
+      "id": "4e83a5e3-b7ac-4d30-927e-9442e1901aa9",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CG3rsURMv6JdhRiH",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appUonOkpLHSnykm0",
+          "mode": "list",
+          "cachedResultName": "Customer CRM",
+          "cachedResultUrl": "https://airtable.com/appUonOkpLHSnykm0"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl773kRji3HfDWdJ",
+          "mode": "list",
+          "cachedResultName": "Customer feedback",
+          "cachedResultUrl": "https://airtable.com/appUonOkpLHSnykm0/tbl773kRji3HfDWdJ"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer Rating": "={{ $json[\"Rating (1-5)\"] }}",
+            "Record ID": "={{ $json[\"Record ID\"] }}",
+            "Customer name": "={{ $json[\"Customer Name\"] }}",
+            "Customer Email": "={{ $json.Email }}"
+          },
+          "matchingColumns": [
+            "Record ID"
+          ],
+          "schema": [
+            {
+              "id": "Record ID",
+              "displayName": "Record ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer name",
+              "displayName": "Customer name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Rating",
+              "displayName": "Customer Rating",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Todo",
+                  "value": "Todo"
+                },
+                {
+                  "name": "In progress",
+                  "value": "In progress"
+                },
+                {
+                  "name": "Done",
+                  "value": "Done"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        144
+      ],
+      "id": "a7075eb7-6047-46ed-8550-738f408e7d18",
+      "name": "Create or update a record1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "xVFKfVeJ74QTQRAA",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "Thehardyy",
+          "mode": "name"
+        },
+        "text": "=the following customer ratings are below 2: {{ $json[\"Customer ID records\"] }}\n\nHave a look at them.",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        720,
+        192
+      ],
+      "id": "26a697c2-5318-4f3d-9237-cd4b339b8638",
+      "name": "Send a message",
+      "webhookId": "faffc965-5fe7-4aea-8732-1ec35c5fcc4a",
+      "credentials": {
+        "slackApi": {
+          "id": "RSHwqU3KrRNSbQAf",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f9d52a60-8bbf-4bd8-8c2d-f202a5b9fcbc",
+              "leftValue": "={{ $json.fields[\"Customer Rating\"] }}",
+              "rightValue": 2,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        352,
+        288
+      ],
+      "id": "6bd38616-4b7e-4e0c-8cab-7197000818a4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "gomanac436@juhxs.com",
+        "subject": "Welcome email.",
+        "message": "=To all the satisfied customers : {{ $json[\"Customer names\"] }} \nand their emails : {{ $json[\"Customer Emails\"] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        688,
+        384
+      ],
+      "id": "5fec9a55-3fa5-4362-a9a2-0551d5b49403",
+      "name": "Send a message1",
+      "webhookId": "6cc7c74d-7a23-4b83-bf21-cb51eeb92f6f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "axG2X7yxOLhgo9kH",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "fields[\"Customer name\"]",
+              "renameField": true,
+              "outputFieldName": "Customer names"
+            },
+            {
+              "fieldToAggregate": "fields[\"Customer Email\"]",
+              "renameField": true,
+              "outputFieldName": "Customer Emails"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        528,
+        384
+      ],
+      "id": "d231fd2c-e79b-408c-bd28-ca5191c64bcb",
+      "name": "Aggregate",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "fields[\"Record ID\"]",
+              "renameField": true,
+              "outputFieldName": "Customer ID records"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        528,
+        192
+      ],
+      "id": "0a1d6cb3-e608-4281-8271-be003b58941f",
+      "name": "Aggregate1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Create or update a record1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or update a record1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        []
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "511edaa3-0240-405b-94ea-61e22fb67f49",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "af2df7fe43eddeb470719f6f1c01f6e64057d61480721d0772b20d3a58c7dc4f"
+  },
+  "id": "eAM9887m0xplRh06AONO9",
+  "tags": []
+}
