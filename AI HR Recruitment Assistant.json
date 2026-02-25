@@ -1,0 +1,1261 @@
+{
+  "name": "AI HR Recruitment Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Apply for the Job ",
+        "formDescription": "Full Time Automation Engineer at Lufthansa in Frankfurt",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "First Name ",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Last Name ",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email ",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Resume ",
+              "fieldType": "file",
+              "acceptFileTypes": ".pdf",
+              "requiredField": true
+            },
+            {
+              "fieldType": "hiddenField",
+              "fieldName": "hdn-job-code",
+              "fieldValue": "job-code-001"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        32,
+        -80
+      ],
+      "id": "1dbfbe5f-25aa-4cdc-8eff-d6a2831aa312",
+      "name": "On form submission - Lufthansa",
+      "webhookId": "6453e37f-c552-4ccc-87d4-a30a556632ca"
+    },
+    {
+      "parameters": {
+        "formTitle": "Apply for the Job ",
+        "formDescription": "Full-Time Data Analyst  at SAP in Berlin\n",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "First Name ",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Last Name ",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email ",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Resume ",
+              "fieldType": "file",
+              "acceptFileTypes": ".pdf",
+              "requiredField": true
+            },
+            {
+              "fieldType": "hiddenField",
+              "fieldName": "hdn-job-code",
+              "fieldValue": "job-code-002"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        48,
+        256
+      ],
+      "id": "7a2de6ac-8973-4c97-b8d4-cf89a4b0d4d1",
+      "name": "On form submission - SAP",
+      "webhookId": "3e19961e-62e9-44d3-9c0e-034bab7adf38"
+    },
+    {
+      "parameters": {
+        "name": "={{ $json['Full Name'] }}{{ $json['Which SAP domain/area are you most interested in?'] }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1nCAyGvyfY7_gQ5wThu8qs4_tXPaw6bKm",
+          "mode": "list",
+          "cachedResultName": "Resumes",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1nCAyGvyfY7_gQ5wThu8qs4_tXPaw6bKm"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        256,
+        -80
+      ],
+      "id": "7e4e3015-7d19-4a58-8fc3-6f15a48b92a2",
+      "name": "Upload Resumes in Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "KtUcajXMrBybOAUK",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "=data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        112
+      ],
+      "id": "67f203b4-42ea-4771-86fc-c536df0f93bf",
+      "name": "Extract Info from Resume"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        560,
+        192
+      ],
+      "id": "2877c218-bcad-4c8f-921a-dc937181d42a",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "3xi95XcczsHdAky4",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Educational qualification",
+              "description": "Summary of academic career, focusing on undergraduate and university studies. Summarize in 100 words maximum.",
+              "required": true
+            },
+            {
+              "name": "Job History",
+              "description": "Work history summary, focusing on most recent work experiences. Summarize in 100 words maximum.",
+              "required": true
+            },
+            {
+              "name": "Skills",
+              "description": "Extract the candidate's technical skills. What software. Make a bulleted list., frameworks, functional skills they are proficient in. ",
+              "required": true
+            },
+            {
+              "name": "Experience",
+              "description": "Extract years of experience and group experience by job function or role type. Format Example : Total Years Exp: 7 - Account Executive : 2 years - Sales Development Representative: 2 years - Account Manager: 3 years",
+              "required": true
+            },
+            {
+              "name": "Title & Employer",
+              "description": "Extract most recent job Title and Employer"
+            },
+            {
+              "name": "Total years of Experience",
+              "description": "Extract total years of experience and format ass Total Years Exp:"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        368
+      ],
+      "id": "e3a50c5c-2ca3-4333-a89e-ca5ab19ee988",
+      "name": "Professional Information"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"telephone\": {\n      \"type\": \"string\",\n      \"description\": \"Phone number of the contact (digits only)\"\n    },\n    \"city\": {\n      \"type\": \"string\",\n      \"description\": \"City of the contact\"\n    },\n    \"full_name\": {\n      \"type\": \"string\",\n      \"description\": \"Full name of the contact\"\n    },\n    \"email\": {\n      \"type\": \"string\",\n      \"format\": \"email\",\n      \"description\": \"Email address of the contact\"\n    },\n    \"linkedin_profile\": {\n      \"type\": \"string\",\n      \"format\": \"url\",\n      \"description\": \"LinkedIn Profile of the contact\"\n    }\n  },\n  \"required\": [\n    \"full_name\",\n    \"email\",\n    \"telephone\",\n    \"city\",\n    \"linkedin_profile\"\n  ]\n}\n",
+        "options": {
+          "systemPromptTemplate": "You are an expert extraction algorithm.\nOnly extract relevant information from the text.\nIf you do not know the value of an attribute asked to extract, you should set that value for the attribute to NA."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        -48
+      ],
+      "id": "f1b88e30-e907-4703-9cca-f9f0fa639f4a",
+      "name": " Personal Information"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        832,
+        112
+      ],
+      "id": "2339fcb5-90c8-4e77-b08d-d69b58e5799a",
+      "name": "Unified Candidate Profile"
+    },
+    {
+      "parameters": {
+        "options": {
+          "summarizationMethodAndPrompts": {
+            "values": {
+              "combineMapPrompt": "=Given the information below for a job applicant, write a concise summary of it. While summarizing, be professional, concise, and conversational. Use 400 words or fewer.\n\nHere is the detailed information about the applicant: \n\nName: {{ $json.output.full_name }}\nCity: {{ $json.output.city }}\nEducational qualification: {{ $json.output['Educational qualification'] }}\nJob history:{{ $json.output['Job History'] }}\nSkills:{{ $json.output.Skills }}\nPrevious experience:{{ $json.output.Experience }}\nApplied date:{{ $now.format('yyyy-MM-dd') }}\n ",
+              "prompt": "=Given the information below for a job applicant, write a concise summary of it. While summarizing, be professional, concise, and conversational. Use 400 words or fewer.\n\nHere is the detailed information about the applicant: \n\nName: {{ $json.output.full_name }}\nCity: {{ $json.output.city }}\nEducational qualification: {{ $json.output['Educational qualification'] }}\nJob history:{{ $json.output['Job History'] }}\nSkills:{{ $json.output.Skills }}\nPrevious experience:{{ $json.output.Experience }}\nApplied date:{{ $now.format('yyyy-MM-dd') }}\n "
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "typeVersion": 2.1,
+      "position": [
+        1056,
+        112
+      ],
+      "id": "3d52ca73-05a6-43ba-94e2-9e20bd9dc640",
+      "name": "Summarize the profile"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "1j6ABK2J6WLtjI6Ef0XlWynBtgWOiDkzIgQS4Imt5MpA"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1408,
+        112
+      ],
+      "id": "92712583-0855-4b60-8453-ac4533b4dd82",
+      "name": "Get Job Posting",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "2xMeXbmtt6C6zL3s",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Job Posting Details:\n {{ $json.content }}\nHere is the Candidate profile summary:\n{{ $('Summarize the profile').item.json.output.text }}",
+        "needsFallback": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an HR expert. Evaluate the candidate against the job posting.\n\nReturn ONLY valid JSON in this format:\n{\n  \"ai_resume_score\": number (1-10),\n  \"ai_evaluation\": string\n}\n\nai_resume_score = alignment score from 1 to 10.\nai_evaluation = explanation of the score.\nDo not return anything else.\n"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1632,
+        112
+      ],
+      "id": "e72eb0fb-e947-4601-b9ef-a0b64954c8e9",
+      "name": "Evaluate & Score Profile"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1712,
+        336
+      ],
+      "id": "9ffe2b1c-c713-4cba-b5f4-1881ea509828",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "f4LfizMuJAdnfSDT",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get raw text output\nlet raw = $json.text;\n\n// Remove markdown if present\nraw = raw.replace(/```json|```/g, \"\").trim();\n\n// Parse JSON string\nconst parsed = JSON.parse(raw);\n\n// Return clean structured output\nreturn [\n  {\n    json: {\n      ai_resume_score: parsed.ai_resume_score,\n      ai_evaluation: parsed.ai_evaluation\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1984,
+        112
+      ],
+      "id": "1e971a45-9f9b-45d4-8d44-030802e880e3",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.ai_resume_score }}",
+                    "rightValue": 6,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gt"
+                    },
+                    "id": "fb4381e4-f09f-46c1-baa7-ffd72b3df7ec"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Shortlisted"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1b4eda00-c399-435c-8c09-274f1702ab12",
+                    "leftValue": "={{ $json.ai_resume_score }}",
+                    "rightValue": 5,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gte"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Maybe"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Ignored"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2208,
+        96
+      ],
+      "id": "de23b185-3ed8-45a5-b78b-382e22b72cfe",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e3b75321-39a1-4025-97dd-e1b7ad6f4e77",
+              "name": "ai_status",
+              "value": "shortlisted",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2432,
+        -80
+      ],
+      "id": "55eb4df5-00b8-402e-9280-cc09d78edaaf",
+      "name": "Shortlisted"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e3b75321-39a1-4025-97dd-e1b7ad6f4e77",
+              "name": "ai_status",
+              "value": "Maybe",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2432,
+        160
+      ],
+      "id": "c0bb2ba2-fc9c-47b9-8c06-b2ea697ccbaf",
+      "name": "Maybe"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e3b75321-39a1-4025-97dd-e1b7ad6f4e77",
+              "name": "ai_status",
+              "value": "Ignored",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2432,
+        352
+      ],
+      "id": "472062e7-3ed6-450d-96a1-e1db0f84d8b9",
+      "name": "Ignored"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "195TU7bLJxVMq5T3RFr1rSdaFMKFQ3LP20Bvsz6vFY5Y",
+          "mode": "list",
+          "cachedResultName": "Application Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/195TU7bLJxVMq5T3RFr1rSdaFMKFQ3LP20Bvsz6vFY5Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "ATS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/195TU7bLJxVMq5T3RFr1rSdaFMKFQ3LP20Bvsz6vFY5Y/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Applicant Name": "={{ $('SAP Hiring ').item.json['Full Name'] }}",
+            "Job Code": "={{ $('SAP Hiring ').item.json['Full Name'] }}{{ $('SAP Hiring ').item.json['Which SAP domain/area are you most interested in?'] }}",
+            "Applicant Email": "={{ $('SAP Hiring ').item.json['Email Address'] }}",
+            "Date Applied": "={{ $('SAP Hiring ').item.json.Timestamp }}",
+            "AI Assessment Score": "={{ $json.ai_resume_score }}",
+            "Status": "={{ $json.ai_status }}",
+            "Total Experience (Years)": "={{ $('Unified Candidate Profile').item.json.output.Experience }}",
+            "Job History": "={{ $('Unified Candidate Profile').item.json.output['Job History'] }}",
+            "Applicant Education": "={{ $('Unified Candidate Profile').item.json.output['Educational qualification'] }}",
+            "Applicant Location": "={{ $('Unified Candidate Profile').item.json.output.city }}",
+            "Applicant Phone": "={{ $('Unified Candidate Profile').item.json.output.telephone }}",
+            "Skills": "={{ $('Unified Candidate Profile').item.json.output.Skills }}",
+            "Position Applied": "={{ $('Get Job Posting').item.json.content }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Applicant Name",
+              "displayName": "Applicant Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applicant Email",
+              "displayName": "Applicant Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Job Code",
+              "displayName": "Job Code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Position Applied",
+              "displayName": "Position Applied",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Applied",
+              "displayName": "Date Applied",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Interview Scheduled",
+              "displayName": "Interview Scheduled",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Offer Extended",
+              "displayName": "Offer Extended",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hiring Manager Name",
+              "displayName": "Hiring Manager Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hiring Manager Email",
+              "displayName": "Hiring Manager Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Assessment Score",
+              "displayName": "AI Assessment Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Experience (Years)",
+              "displayName": "Total Experience (Years)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job History",
+              "displayName": "Job History",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applicant Education",
+              "displayName": "Applicant Education",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applicant Location",
+              "displayName": "Applicant Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applicant Phone",
+              "displayName": "Applicant Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skills",
+              "displayName": "Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2656,
+        160
+      ],
+      "id": "a4243187-171a-4b7b-bde5-a3339f73e623",
+      "name": "Log applicants evaluation",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "keAwGLydaU5Qx3jH",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $(' Personal Information').item.json.output.email }}",
+        "subject": "SAP - Application 2026",
+        "message": "=Greetings  {{ $(' Personal Information').item.json.output.full_name }} and welcome to Hardesol,\n\nYour profile has been shortlisted for the role, kindly reply to this email for your availibility either telephonic or video conference interview! \n\nSee you shortly!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2656,
+        -128
+      ],
+      "id": "16ec2fe5-ecae-487d-a3f5-2e513d13264e",
+      "name": "Send a message",
+      "webhookId": "88ecc95e-0eae-4a34-9e3d-799dc2dc7734",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "inoAl8dQmRsHPzML",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "=",
+        "subject": "SAP - Application 2026",
+        "message": "=Greetings  {{ $(' Personal Information').item.json.output.full_name }},\n\nYou candidature was really impressive, but today we would like to share the bad news, unfortunately due to the heavy applicant traffic, we were unable to consider your profile at the moment. However, you can always apply for the upcoming job roles.\n\nThanking you for your time.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2656,
+        400
+      ],
+      "id": "22db6a7a-bdf3-4b96-8f8f-9d573b964710",
+      "name": "Send a message1",
+      "webhookId": "88ecc95e-0eae-4a34-9e3d-799dc2dc7734",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "inoAl8dQmRsHPzML",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Apply for the Job ",
+        "formDescription": "Hardesol invites you for the following role:\n-Full-Time Personal Secretary to the CEO, kindly fill up the form as requested.\nWe thank you for your time\n\n\nHardesol GmbH - we change the world",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "First Name ",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Last Name ",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email ",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Resume ",
+              "fieldType": "file",
+              "acceptFileTypes": ".pdf",
+              "requiredField": true
+            },
+            {
+              "fieldType": "hiddenField",
+              "fieldName": "hdn-job-code",
+              "fieldValue": "job-code-005"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        80
+      ],
+      "id": "d6b2e8e9-3c10-4686-9c4f-55d45f5ccf4a",
+      "name": "On form submission - Hardesol",
+      "webhookId": "0e3a1d42-2eaf-4f87-ba67-7df64162e6b5"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json['Upload your CV/Resume (PDF format preferred)'].split('id=')[1] }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -272,
+        48
+      ],
+      "id": "6076ed51-98a6-4feb-b99a-dfbeeeea9ec6",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "KtUcajXMrBybOAUK",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1TWLAxkXc3xxEu7BRhuavr37eGNrpNdmSnF05dvAFQTI",
+          "mode": "list",
+          "cachedResultName": "Application Form: Personal Secretary to the CEO (Responses)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TWLAxkXc3xxEu7BRhuavr37eGNrpNdmSnF05dvAFQTI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 361587120,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TWLAxkXc3xxEu7BRhuavr37eGNrpNdmSnF05dvAFQTI/edit#gid=361587120"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        240
+      ],
+      "id": "e6f51dea-280f-4233-bbc1-d4f640da87e5",
+      "name": "Hardesol GmbH",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "k5pCNMkre0x8R9kr",
+          "name": "Google Sheets Trigger account 2"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1on0gduy-94odrOkDl_YOmL78csPBvjiZuUjA022NwTQ",
+          "mode": "list",
+          "cachedResultName": "SAP Application Form - Berlin (Responses)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1on0gduy-94odrOkDl_YOmL78csPBvjiZuUjA022NwTQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 56610268,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1on0gduy-94odrOkDl_YOmL78csPBvjiZuUjA022NwTQ/edit#gid=56610268"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        32
+      ],
+      "id": "74281057-37e5-4938-b88c-7f39c8c8b8f4",
+      "name": "SAP Hiring ",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "k5pCNMkre0x8R9kr",
+          "name": "Google Sheets Trigger account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json[\"Upload your current CV/Resume (PDF preferred)\"].split('id=')[1] }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -256,
+        240
+      ],
+      "id": "f2c60947-00ea-4f0f-9777-3185ac4220e1",
+      "name": "Download the resume",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "KtUcajXMrBybOAUK",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $(' Personal Information').item.json.output.email }}",
+        "subject": "SAP - Application 2026",
+        "message": "=Greetings  {{ $(' Personal Information').item.json.output.full_name }} and welcome to Hardesol,\n\nYour profile has been shortlisted for the role, kindly reply to this email for your availibility either telephonic or video conference interview! \n\nSee you shortly!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2912,
+        160
+      ],
+      "id": "e0f3e880-c48f-4cd1-a120-628c91e9834b",
+      "name": "Send a message2",
+      "webhookId": "88ecc95e-0eae-4a34-9e3d-799dc2dc7734",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "inoAl8dQmRsHPzML",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission - Lufthansa": {
+      "main": [
+        [
+          {
+            "node": "Upload Resumes in Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract Info from Resume",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission - SAP": {
+      "main": [
+        [
+          {
+            "node": "Upload Resumes in Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract Info from Resume",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Resumes in Drive": {
+      "main": [
+        []
+      ]
+    },
+    "Extract Info from Resume": {
+      "main": [
+        [
+          {
+            "node": " Personal Information",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Professional Information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": " Personal Information",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Professional Information",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Summarize the profile",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Evaluate & Score Profile",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Personal Information": {
+      "main": [
+        [
+          {
+            "node": "Unified Candidate Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Professional Information": {
+      "main": [
+        [
+          {
+            "node": "Unified Candidate Profile",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Unified Candidate Profile": {
+      "main": [
+        [
+          {
+            "node": "Summarize the profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize the profile": {
+      "main": [
+        [
+          {
+            "node": "Get Job Posting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Job Posting": {
+      "main": [
+        [
+          {
+            "node": "Evaluate & Score Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Evaluate & Score Profile",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Evaluate & Score Profile": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Shortlisted",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Maybe",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ignored",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shortlisted": {
+      "main": [
+        [
+          {
+            "node": "Log applicants evaluation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Maybe": {
+      "main": [
+        [
+          {
+            "node": "Log applicants evaluation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ignored": {
+      "main": [
+        [
+          {
+            "node": "Log applicants evaluation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission - Hardesol": {
+      "main": [
+        [
+          {
+            "node": "Upload Resumes in Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract Info from Resume",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Upload Resumes in Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract Info from Resume",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hardesol GmbH": {
+      "main": [
+        [
+          {
+            "node": "Download the resume",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SAP Hiring ": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download the resume": {
+      "main": [
+        [
+          {
+            "node": "Upload Resumes in Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract Info from Resume",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log applicants evaluation": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "0d1dc4ce-8104-4345-8ac0-f74b573e7149",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "af2df7fe43eddeb470719f6f1c01f6e64057d61480721d0772b20d3a58c7dc4f"
+  },
+  "id": "jP9urbsyXc12TL8C2QCMW",
+  "tags": []
+}
