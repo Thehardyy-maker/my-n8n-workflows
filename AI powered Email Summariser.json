@@ -1,0 +1,434 @@
+{
+  "name": "AI powered Email Summariser",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 1,
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ],
+          "readStatus": "unread"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        112
+      ],
+      "id": "102fdd61-51a8-42ce-ae76-dc64438cfd7c",
+      "name": "Fetch Emails",
+      "webhookId": "6e5d1295-5929-4d6a-a0d1-659feb987853",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zW9gyI03enCWiwsW",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Your Tasks:\n\nSummarize the email given below in one line.\n\nTell me if a reply is needed (Yes/No).\n\nIf yes, suggest a short and polite reply I can send.\n\nPlease respond in the following JSON format:\n\n{\n  \"summary\": \"One sentence summary of the email\",\n  \"reply_needed\": \"Yes or No\",\n  \"suggested_reply\": \"Only if reply_needed is Yes, else leave as empty string\"\n}\n\n\nHere is the email body received:\n\n{{ $json.text }}",
+        "needsFallback": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a helpful email assistant. Your job is to read incoming emails, summarize them in one line, and decide whether they need a reply. If a reply is needed, you will draft a polite response based on the email content. Always draft the response in the HTML format so that it is ready to be sent."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        192,
+        112
+      ],
+      "id": "b5aba75c-c891-417c-9cc3-fd56f4583369",
+      "name": "Summarise email draft replies"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a63ba475-15d9-43b1-bc27-16d44e95cf95",
+              "leftValue": "={{ $json.reply_needed }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        656,
+        112
+      ],
+      "id": "264d6ca9-a1f8-4234-b2ea-544f61036a11",
+      "name": "Is reply needed?"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-lite-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        128,
+        336
+      ],
+      "id": "7d5d157f-0d7e-4d2c-816f-819d03f14ab7",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mCYiWORYpgXq75HT",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=Re: {{ $('Fetch Emails').item.json.headers.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.suggested_reply }}\n\n",
+        "options": {
+          "threadId": "={{ $('Fetch Emails').item.json.threadId }}",
+          "sendTo": "={{ $('Fetch Emails').item.json.headers.from }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        16
+      ],
+      "id": "7df344c5-aafd-40e2-8536-0a712c0bc994",
+      "name": "Create Draft",
+      "webhookId": "363c3a83-0dff-46a8-94b0-010169cdd636",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zW9gyI03enCWiwsW",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "operation": "get",
+        "messageId": "={{ $('Create Draft').item.json.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        16
+      ],
+      "id": "6e52c9fc-f40f-43dc-a4c3-aa2aab525ff7",
+      "name": "Get original Draft",
+      "webhookId": "1ba68928-0434-42b5-81a2-9518fd87df1f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zW9gyI03enCWiwsW",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/send",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "gmailOAuth2",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1472,
+        16
+      ],
+      "id": "019365c8-4375-4e6f-aceb-a19ffd056bef",
+      "name": "Send Draft DIrectly",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "inoAl8dQmRsHPzML",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the text from Gemini\nconst aiText = $input.first().json.text;\n\n// Clean up the \"markdown\" (remove ```json and ```)\nconst cleanText = aiText.replace(/```json/g, '').replace(/```/g, '').trim();\n\n// Convert text to real Data (JSON)\ntry {\n  const jsonData = JSON.parse(cleanText);\n  return {\n    summary: jsonData.summary,\n    reply_needed: jsonData.reply_needed,\n    suggested_reply: jsonData.suggested_reply\n  };\n} catch (error) {\n  return { error: \"AI returned bad data\", raw_text: aiText };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        112
+      ],
+      "id": "df6d9405-a46c-496b-b6a8-89d345a2ae7f",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "chatId": "7706363117",
+        "text": "=🔔 New Email Alert!\n\n📄 Summary:{{ $('Code in JavaScript').item.json.summary }}\n\n✅ Reply Required: Yes\n\n✍️ Suggested Reply: {{ $('Code in JavaScript').item.json.suggested_reply }}\n📬 What next?\n• Review and edit the draft reply in your Gmail\n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1024,
+        16
+      ],
+      "id": "bd2ba20a-c54d-46e3-b82a-f5960f08097f",
+      "name": "Send a message to me",
+      "webhookId": "c1947dc6-875e-4ea2-8378-6285162bf628",
+      "credentials": {
+        "telegramApi": {
+          "id": "Z2fsqDbwrHSCVoou",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7706363117",
+        "text": "=You dont need to take any action, let it be.\n{{ $json.summary }}{{ $json.reply_needed }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        800,
+        208
+      ],
+      "id": "2250777c-5b8b-47ee-b41b-f24583235aa7",
+      "name": "Send a message to me1",
+      "webhookId": "c1947dc6-875e-4ea2-8378-6285162bf628",
+      "credentials": {
+        "telegramApi": {
+          "id": "Z2fsqDbwrHSCVoou",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -256,
+        112
+      ],
+      "id": "daf57138-80d2-49f5-898a-8f355d1f43e7",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zW9gyI03enCWiwsW",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "groq/compound",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        288,
+        336
+      ],
+      "id": "49506f58-ae74-4720-9a41-63d0e5ac34f3",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "f4LfizMuJAdnfSDT",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Fetch Emails": {
+      "main": [
+        [
+          {
+            "node": "Summarise email draft replies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarise email draft replies": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarise email draft replies",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is reply needed?": {
+      "main": [
+        [
+          {
+            "node": "Create Draft",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message to me1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Draft": {
+      "main": [
+        [
+          {
+            "node": "Send a message to me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get original Draft": {
+      "main": [
+        [
+          {
+            "node": "Send Draft DIrectly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Is reply needed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message to me": {
+      "main": [
+        [
+          {
+            "node": "Get original Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarise email draft replies",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "74fa02bd-e21e-43d2-9dc8-c625ea936665",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "af2df7fe43eddeb470719f6f1c01f6e64057d61480721d0772b20d3a58c7dc4f"
+  },
+  "id": "_oWrs76fgdeJF-oR2eUqP",
+  "tags": [
+    {
+      "updatedAt": "2026-02-08T16:49:15.240Z",
+      "createdAt": "2026-02-08T16:49:15.240Z",
+      "id": "J2rZ5lDO4IK5jVYF",
+      "name": "EMAIL AUTOMATION"
+    }
+  ]
+}
